@@ -12,27 +12,18 @@ class TokenSpec extends AppSpec {
     result.status should equal (BAD_REQUEST)
     result.json should equal (obj(
       "errors" -> obj(
-        "user_id" -> "required"
+        "user_id" -> arr("This field is required"),
+        "secret"  -> arr("This field is required")
       )
     ))
   }
   
-  "GET /api/v1/token?user_id=bad" should "return 403" in {
-    val result = get("/api/v1/token?user_id=bad")
+  "GET /api/v1/token?user_id=bad&secret=secret" should "return 403" in {
+    val result = get("/api/v1/token?user_id=bad&secret=secret")
     result.status should equal (BAD_REQUEST)
     result.json should equal (obj(
       "errors" -> obj(
-        "user_id" -> "expecting a number"
-      )
-    ))
-  }
-  
-  "GET /api/v1/token?user_id=42" should "return 403" in {
-    val result = get("/api/v1/token?user_id=42")
-    result.status should equal (BAD_REQUEST)
-    result.json should equal (obj(
-      "errors" -> obj(
-        "secret" -> "required"
+        "user_id" -> arr("Numeric value expected")
       )
     ))
   }

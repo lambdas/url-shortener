@@ -2,27 +2,31 @@ package controllers.api.v1
 
 import play.api._
 import play.api.mvc._
-import errors._
+import play.api.data._
+import play.api.data.Forms._
+import play.api.libs.json.Json.{obj}
 
 object Token extends Controller {
 
+  val createForm = Form(
+    tuple(
+      "user_id" -> longNumber,
+      "secret" -> nonEmptyText
+    )
+  )
+
   def create = Action { request =>
-    val userId = request.queryString.get("user_id").flatMap(_.headOption)
-      .orElse(throw InvalidArgumentsError("user_id", "required"))
-      .flatMap(toLong _)
-      .getOrElse(throw InvalidArgumentsError("user_id", "expecting a number"))
-    val secret = request.queryString.get("secret")
-      .orElse(throw InvalidArgumentsError("secret", "required"))
-    Ok("FINE")
+    withForm(createForm.bindFromRequest(request.queryString)) {
+      case (userId, secret) => Ok("")
+    }
   }
 
   // TODO: Move me somewhere
-  protected def toLong(s: String): Option[Long] = {
-    try {
-      Some(s.toLong)
-    } catch {
-      case e:Exception => None
-    }
-  }
+  protected def withForm[A](form: Form[A])
+                           (onSuccess: A => Result): Result =
+    form.fold(
+      errors => BadRequest(obj("errors" -> errors.errorsAsJson)),
+      onSuccess
+    )
   
 }
