@@ -3,6 +3,10 @@ package test
 import org.scalatest._
 import play.api.test.{TestServer, FakeApplication}
 import play.api.Logger
+import anorm.SqlParser._
+import anorm._
+import play.api.db.DB
+import play.api.Play.current
 
 trait AppSpec extends FlatSpec 
     with Matchers
@@ -21,11 +25,20 @@ trait AppSpec extends FlatSpec
   }
 
   before {
-    
+    clearTables()
   }
 
   after {
     
   }
 
+  protected def clearTables() {
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+          |truncate users restart identity cascade;
+        """.stripMargin
+      ).executeUpdate()
+    }
+  }
 }

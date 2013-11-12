@@ -1,13 +1,15 @@
 package controllers.api.v1
 
+import anorm.NotAssigned
 import test.AppSpec
 import test.ControllerUtils._
 import play.api.test.Helpers._
 import play.api.libs.json.Json.{arr, obj, toJsFieldJsValueWrapper}
+import models._
 
 class TokenSpec extends AppSpec {
 
-  "GET /api/v1/token" should "return 403" in {
+  "GET /api/v1/token" should "return 403 if parameters are missing" in {
     val result = get("/api/v1/token")
     result.status should equal (BAD_REQUEST)
     result.json should equal (obj(
@@ -18,8 +20,8 @@ class TokenSpec extends AppSpec {
     ))
   }
   
-  "GET /api/v1/token?user_id=bad&secret=secret" should "return 403" in {
-    val result = get("/api/v1/token?user_id=bad&secret=secret")
+  it should "return 403 if user_id is not a number" in {
+    val result = get("/api/v1/token?user_id=bad-id&secret=wrong-secret")
     result.status should equal (BAD_REQUEST)
     result.json should equal (obj(
       "errors" -> obj(
@@ -28,9 +30,27 @@ class TokenSpec extends AppSpec {
     ))
   }
   
-  "GET /api/v1/token?user_id=42&secret=secret" should "return 200" in {
-    val result = get("/api/v1/token?user_id=42&secret=secret")
+  it should "return 401 if wrong credentials passed" in {
+    val result = get("/api/v1/token?user_id=42&secret=wrong-secret")
+    result.status should equal (UNAUTHORIZED)
+    result.json should equal (obj(
+      "errors"         -> obj(),
+      "error_messages" -> arr("Wrong user id or secret")
+    ))
+  }
+  
+  it should "return 200 and token if valid credentials passed" in new Fixtures {
+    val result = get(s"/api/v1/token?user_id=${user.id.get}&secret=${user.secret}")
     result.status should equal (OK)
+    result.json should equal (obj(
+      "token" -> user.token
+    ))
   }
 
+}
+
+class Fixtures {
+  
+  val user = User create User(NotAssigned, "good-secret", "good-token")
+  
 }

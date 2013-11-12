@@ -10,4 +10,7 @@ libraryDependencies ++= Seq(
   "postgresql" % "postgresql" % "9.1-901.jdbc4"
 )
 
-play.Project.playScalaSettings
+play.Project.playScalaSettings ++ Seq(
+  javaOptions in Test += "-Dconfig.file=conf/test.conf",
+  testOptions in Test := Nil
+)
