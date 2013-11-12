@@ -1,0 +1,1 @@
+GET     /token                      controllers.api.v1.Token.create
