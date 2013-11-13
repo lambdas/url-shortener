@@ -4,6 +4,8 @@ import anorm._
 import anorm.SqlParser._
 import play.api.db.DB
 import play.api.Play.current
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 case class Folder(
     id:     Pk[Long],
@@ -103,5 +105,10 @@ object Folder {
           'userId -> userId
         ).executeUpdate()
   }
+  
+  implicit val folderWrites = (
+    (__ \ "id")   .write[Long] ~
+    (__ \ "title").write[String]
+  )((f: Folder) => (f.id.get, f.title))
   
 }
