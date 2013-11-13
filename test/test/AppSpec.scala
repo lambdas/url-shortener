@@ -37,6 +37,7 @@ trait AppSpec extends FlatSpec
       SQL(
         s"""
           |truncate users restart identity cascade;
+          |truncate folders restart identity cascade;
         """.stripMargin
       ).executeUpdate()
     }

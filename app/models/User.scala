@@ -13,6 +13,9 @@ case class User(
 
 object User {
   
+  def apply(secret: String, token: String): User = 
+    User(NotAssigned, secret, token)
+  
   val simple =
     get[Pk[Long]]("id")     ~
     get[String]  ("secret") ~
@@ -32,6 +35,18 @@ object User {
       ).on(
         'id -> id,
         'secret -> secret
+      ).as(simple.singleOpt)
+    }
+  
+  def findOneByToken(token: String): Option[User] = 
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+           |SELECT * FROM users
+           |  WHERE token = {token}
+         """.stripMargin
+      ).on(
+        'token -> token
       ).as(simple.singleOpt)
     }
   
