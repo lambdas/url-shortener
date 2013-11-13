@@ -3,3 +3,4 @@ GET     /token                      controllers.api.v1.TokenController.auth
 
 GET     /folder                     controllers.api.v1.FolderController.list(offset: Long ?= 0, limit: Long ?= 20)
 POST    /folder                     controllers.api.v1.FolderController.create
+DELETE  /folder/:id                 controllers.api.v1.FolderController.delete(id: Long)

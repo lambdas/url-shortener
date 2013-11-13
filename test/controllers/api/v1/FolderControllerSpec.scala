@@ -68,6 +68,18 @@ class FolderControllerSpec extends AppSpec {
     ))
   }
 
+  "DELETE /api/v1/folder/:id" should "be secured" in {
+    val result = delete(s"/api/v1/folder/42")
+    result.status should equal (UNAUTHORIZED)
+  }
+  
+  it should "delete folder" in new Fixtures {
+    val result = delete(s"/api/v1/folder/${mineFolder_1.id.get}?token=${me.token}")
+    result.status should equal (OK)
+    
+    Folder.findOneByIdAndUserId(mineFolder_1.id.get, me.id.get) should be ('empty)
+  }
+  
   class Fixtures {
   
     val me   = User create User("good-secret", "good-token")

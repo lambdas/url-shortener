@@ -15,4 +15,8 @@ object ControllerUtils {
     await(WS.url(s"http://localhost:3333$url").post(body))
   }
 
+  def delete(url: String): Response = {
+    await(WS.url(s"http://localhost:3333$url").delete)
+  }
+  
 }

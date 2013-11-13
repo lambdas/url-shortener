@@ -89,4 +89,19 @@ object Folder {
       folder.copy(id = Id(id))
   }
   
+  def delete(id: Long, userId: Long): Unit = DB.withTransaction {
+    implicit connection =>
+      
+      SQL(
+          """
+             |DELETE FROM folders
+             |  WHERE id = {id}
+             |  AND user_id = {userId}
+          """.stripMargin
+        ).on(
+          'id     -> id,
+          'userId -> userId
+        ).executeUpdate()
+  }
+  
 }

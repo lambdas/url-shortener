@@ -27,6 +27,14 @@ object FolderController extends Controller with Security {
     }
   }
   
+  def delete(id: Long) = Authenticated { request =>
+    implicit val user = request.user
+    withFolder(id) { folder =>
+      Folder.delete(id, user.id.get)
+      Ok
+    }
+  }
+  
   protected implicit val folderWrites = (
     (__ \ "id")   .write[Long] ~
     (__ \ "title").write[String]
@@ -45,6 +53,13 @@ object FolderController extends Controller with Security {
       f
     else
       BadRequest(Errors.common("Folder with such name already exists"))
+  }
+  
+  protected def withFolder(id: Long)
+                          (f: Folder => Result)
+                          (implicit user: User): Result = {
+    Folder.findOneByIdAndUserId(id, user.id.get).map(f)
+      .getOrElse(NotFound(Errors.common("No folder with such id")))
   }
   
 }
