@@ -65,7 +65,7 @@ class LinkControllerSpec extends AppSpec {
   it should "return 400 if code already exists" in new Fixtures {
     val result = post("/api/v1/link?token=good-token", obj(
         "url"       -> "http://very-long-url.com",
-        "code"      -> "existing",
+        "code"      -> link.code,
         "folder_id" -> folder.id.get
     ))
     
@@ -84,7 +84,7 @@ class LinkControllerSpec extends AppSpec {
     
     val folder = Folder create Folder("existing", me.id.get)
     
-    val link = Link create Link("http://url.com", "existing", me.id.get, None)
+    val link = Link create Link("http://url.com", None, me.id.get, None)
   
   }
     

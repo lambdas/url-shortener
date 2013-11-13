@@ -4,6 +4,9 @@ import anorm._
 import anorm.SqlParser._
 import play.api.db.DB
 import play.api.Play.current
+import java.util.UUID
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 case class Link(
     id:       Pk[Long],
@@ -15,8 +18,8 @@ case class Link(
 
 object Link {
   
-  def apply(url: String, code: String, userId: Long, folderId: Option[Long]): Link =
-    Link(NotAssigned, url, code, userId, folderId)
+  def apply(url: String, code: Option[String], userId: Long, folderId: Option[Long]): Link =
+    Link(NotAssigned, url, code.getOrElse(randomCode), userId, folderId)
   
   val simple =
     get[Pk[Long]]    ("id")        ~
@@ -38,6 +41,18 @@ object Link {
       ).on(
         'code -> code
       ).as(simple.singleOpt)
+    }
+  
+  def findByFolderId(folderId: Long): Seq[Link] = 
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+           |SELECT * FROM links
+           |  WHERE folder_id = {folderId}
+         """.stripMargin
+      ).on(
+        'folderId -> folderId
+      ).as(simple *)
     }
   
   def create(link: Link): Link = DB.withTransaction {
@@ -77,5 +92,14 @@ object Link {
           'userId   -> userId
         ).executeUpdate()
   }
+  
+  // TODO: Check for collision
+  def randomCode: String = UUID.randomUUID().toString().take(8)
+  
+  implicit val linkWrites = (
+    (__ \ "url")      .write[String] ~
+    (__ \ "code")     .write[String] ~
+    (__ \ "folder_id").writeNullable[Long]
+  )((l: Link) => (l.url, l.code, l.folderId))
   
 }

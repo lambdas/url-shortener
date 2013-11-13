@@ -4,18 +4,16 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import play.api.libs.json.Json.{obj, arr}
+import play.api.libs.json.Json.{obj, arr, toJson}
 import models._
 import controllers.RichForm._
 import controllers.Errors
 import controllers.Security
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
 
 object FolderController extends Controller with Security {
     
   def list(offset: Long, limit: Long) = Authenticated { request =>
-    Ok(Json.toJson(Folder.list(offset, limit, request.user.id.get)))
+    Ok(toJson(Folder.list(offset, limit, request.user.id.get)))
   }
   
   def create = Authenticated(parse.json) { implicit request =>
@@ -30,7 +28,7 @@ object FolderController extends Controller with Security {
   def show(id: Long) = Authenticated { request =>
     implicit val user = request.user
     withFolder(id) { folder =>
-      Ok(arr())
+      Ok(toJson(Link.findByFolderId(id)))
     }
   }
   
@@ -42,11 +40,6 @@ object FolderController extends Controller with Security {
       Ok(obj())
     }
   }
-  
-  protected implicit val folderWrites = (
-    (__ \ "id")   .write[Long] ~
-    (__ \ "title").write[String]
-  )((f: Folder) => (f.id.get, f.title))
   
   protected def createForm(implicit user: User) = Form(
     mapping(

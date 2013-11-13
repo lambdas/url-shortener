@@ -90,6 +90,8 @@ class FolderControllerSpec extends AppSpec {
     Folder.findOneByIdAndUserId(mineFolder_1.id.get, me.id.get) should be ('empty)
   }
   
+  // TODO: Check that child links also deletes
+  
   "GET /api/v1/folder/:id" should "be secured" in {
     val result = get("/api/v1/folder/42")
     result.status should equal (UNAUTHORIZED)
@@ -104,12 +106,20 @@ class FolderControllerSpec extends AppSpec {
       )
     ))
   }
-  
-  // TODO:
+
   it should "return links it contain" in new Fixtures {
     val result = get(s"/api/v1/folder/${mineFolder_1.id.get}?token=${me.token}")
     result.status should equal (OK)
     result.json should equal (arr(
+      obj(
+        "url"       -> linkFolder_1_1.url,
+        "code"      -> linkFolder_1_1.code,
+        "folder_id" -> linkFolder_1_1.folderId
+      ), obj(
+        "url"       -> linkFolder_1_2.url,
+        "code"      -> linkFolder_1_2.code,
+        "folder_id" -> linkFolder_1_2.folderId
+      )
     ))
   }
   
@@ -123,6 +133,11 @@ class FolderControllerSpec extends AppSpec {
     
     val johnsFolder  = Folder create Folder("johns folder", john.id.get)
   
+    val linkFolder_1_1 = Link create Link("http://some.com", None, me.id.get, Some(mineFolder_1.id.get))
+    val linkFolder_1_2 = Link create Link("http://other.com", None, me.id.get, Some(mineFolder_1.id.get))
+  
+    val linkFolder_2_1 = Link create Link("http://another.com", None, me.id.get, Some(mineFolder_2.id.get))
+
   }
   
 }
