@@ -19,8 +19,43 @@ case class Click(
 
 object Click {
 
-    def apply(linkId: Long, refferer: String, ip: String): Click =
-      Click(NotAssigned, linkId, refferer, ip, new Date())
+  def apply(linkId: Long, refferer: String, ip: String): Click =
+    Click(NotAssigned, linkId, refferer, ip, new Date())
+  
+  def findByLinkId(linkId: Long): Seq[Click] = 
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+           |SELECT * FROM clicks
+           |  WHERE link_id = {linkId}
+         """.stripMargin
+      ).on(
+        'linkId -> linkId
+      ).as(simple *)
+    }
+  
+  def create(click: Click): Click = DB.withTransaction {
+    implicit connection =>
+      
+      val id: Long = click.id.getOrElse {
+        SQL("select nextval('clicks_id_seq')").as(scalar[Long].single)
+      }
+
+      SQL(
+        """
+           |INSERT INTO clicks (id, link_id, refferer, ip, created)
+           |  VALUES ({id}, {linkId}, {refferer}, {ip}, {created})
+        """.stripMargin
+      ).on(
+        'id       -> id,
+        'linkId   -> click.linkId,
+        'refferer -> click.refferer,
+        'ip       -> click.ip,
+        'created  -> click.created
+      ).executeInsert()
+
+      click.copy(id = Id(id))
+  }
   
   val simple =
     get[Pk[Long]]("id")       ~
