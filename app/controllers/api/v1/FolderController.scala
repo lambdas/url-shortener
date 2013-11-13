@@ -8,16 +8,17 @@ import play.api.libs.json.Json.{obj}
 import models._
 import controllers.RichForm._
 import controllers.Errors
+import controllers.Security
 
-object FolderController extends Controller {
+object FolderController extends Controller with Security {
 
   val createForm = Form(
     mapping(
       "title" -> nonEmptyText
     )(Folder.apply)(f => Folder.unapply(f).map(_._2))
   )
-  
-  def create = Action(parse.json) { request =>
+    
+  def create = Authenticated(parse.json) { request =>
     createForm.bind(request.body).withSuccess { folder =>
       withUniqueFolderTitle(folder.title) {
         Ok(obj("id" -> Folder.create(folder).id.get))

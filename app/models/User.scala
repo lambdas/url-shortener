@@ -38,6 +38,18 @@ object User {
       ).as(simple.singleOpt)
     }
   
+  def findOneByToken(token: String): Option[User] = 
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+           |SELECT * FROM users
+           |  WHERE token = {token}
+         """.stripMargin
+      ).on(
+        'token -> token
+      ).as(simple.singleOpt)
+    }
+  
   def create(user: User): User = DB.withTransaction {
     implicit connection =>
       

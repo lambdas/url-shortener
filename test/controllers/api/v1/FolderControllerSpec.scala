@@ -9,8 +9,13 @@ import models._
 
 class FolderControllerSpec extends AppSpec {
 
-  "POST /api/v1/folder" should "return 400 if parameters are missing" in {
+  "POST /api/v1/folder" should "be secured" in {
     val result = post("/api/v1/folder")
+    result.status should equal (UNAUTHORIZED)
+  }
+  
+  it should "return 400 if parameters are missing" in new Fixtures {
+    val result = post("/api/v1/folder?token=good-token")
     result.status should equal (BAD_REQUEST)
     result.json should equal (obj(
       "errors" -> obj(
@@ -19,8 +24,8 @@ class FolderControllerSpec extends AppSpec {
     ))
   }
   
-  it should "create folder and return new folder id if parameters are valid" in {
-    val result = post("/api/v1/folder", obj(
+  it should "create folder and return new folder id if parameters are valid" in new Fixtures {
+    val result = post("/api/v1/folder?token=good-token", obj(
         "title" -> "fun"
     ))
     
@@ -31,8 +36,8 @@ class FolderControllerSpec extends AppSpec {
   }
   
   it should "return 400 if folder with such name already exists" in new Fixtures {
-    val result = post("/api/v1/folder", obj(
-        "title" -> "fun"
+    val result = post("/api/v1/folder?token=good-token", obj(
+        "title" -> "existing"
     ))
     
     result.status should equal (BAD_REQUEST)
@@ -44,7 +49,9 @@ class FolderControllerSpec extends AppSpec {
 
   class Fixtures {
   
-    val folder = Folder create Folder("fun")
+    val user   = User create User("good-secret", "good-token")
+    
+    val folder = Folder create Folder("existing")
   
   }
   
