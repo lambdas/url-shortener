@@ -1,0 +1,15 @@
+# TODO: Better with POST
+GET     /token      controllers.api.v1.TokenController.auth
+
+GET     /folder     controllers.api.v1.FolderController.list(offset: Long ?= 0, limit: Long ?= 20)
+POST    /folder     controllers.api.v1.FolderController.create
+GET     /folder/:id controllers.api.v1.FolderController.show(id: Long)
+DELETE  /folder/:id controllers.api.v1.FolderController.delete(id: Long)
+
+GET     /link       controllers.api.v1.LinkController.list(offset: Long ?= 0, limit: Long ?= 20)
+POST    /link       controllers.api.v1.LinkController.create
+GET     /link/:code controllers.api.v1.LinkController.show(code: String)
+DELETE  /link/:code controllers.api.v1.LinkController.delete(code: String)
+
+POST    /link/:code       controllers.api.v1.ClickController.create(code: String)
+GET     /link/:code/click controllers.api.v1.ClickController.list(code: String, offset: Long ?= 0, limit: Long ?= 20)

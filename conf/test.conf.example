@@ -1,0 +1,11 @@
+include "application"
+db.default.url="jdbc:postgresql://localhost/urlshortener_test"
+
+# Root logger:
+logger.root=OFF
+
+# Logger used by the framework:
+logger.play=OFF
+
+# Logger provided to your application:
+logger.application=OFF
