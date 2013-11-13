@@ -63,4 +63,19 @@ object Link {
       link.copy(id = Id(id))
   }
   
+  def deleteWithFolderId(folderId: Long, userId: Long): Unit = DB.withTransaction {
+    implicit connection =>
+      
+      SQL(
+          """
+             |DELETE FROM links
+             |  WHERE folder_id = {folderId}
+             |  AND user_id = {userId}
+          """.stripMargin
+        ).on(
+          'folderId -> folderId,
+          'userId   -> userId
+        ).executeUpdate()
+  }
+  
 }
