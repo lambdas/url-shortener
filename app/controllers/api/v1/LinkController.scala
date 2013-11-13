@@ -26,7 +26,10 @@ object LinkController extends Controller with Security {
   }
   
   def show(code: String) = Authenticated { request =>
-    Ok(obj())
+    implicit val user = request.user
+    withLink(code) { link =>
+      Ok(toJson(link))
+    }
   }
   
   def delete(code: String) = Authenticated { request =>
@@ -56,6 +59,17 @@ object LinkController extends Controller with Security {
               "code" -> arr("Already exists")
            )
        ))
+  }
+  
+  protected def withLink(code: String)
+                        (f: Link => Result)
+                        (implicit user: User): Result = {
+    Link.findOneByCodeAndUserId(code, user.id.get).map(f)
+      .getOrElse(NotFound(obj(
+          "errors" -> obj(
+              "code" -> arr("Not exists")
+           )
+       )))
   }
   
 }

@@ -43,6 +43,20 @@ object Link {
       ).as(simple.singleOpt)
     }
   
+  def findOneByCodeAndUserId(code: String, userId: Long): Option[Link] = 
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+           |SELECT * FROM links
+           |  WHERE code = {code}
+           |  AND user_id = {userId}
+         """.stripMargin
+      ).on(
+        'code   -> code,
+        'userId -> userId
+      ).as(simple.singleOpt)
+    }
+  
   def findByFolderId(folderId: Long): Seq[Link] = 
     DB.withConnection { implicit connection =>
       SQL(

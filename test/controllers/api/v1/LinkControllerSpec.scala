@@ -78,13 +78,42 @@ class LinkControllerSpec extends AppSpec {
     ))
   }
   
+  "GET /api/v1/link/:code" should "be secured" in {
+    val result = get("/api/v1/link/whatever")
+    result.status should equal (UNAUTHORIZED)
+  }
+  
+  it should "return 404 if no such link exists" in new Fixtures {
+    val result = get(s"/api/v1/link/whatever?token=${me.token}")
+    
+    result.status should equal (NOT_FOUND)
+    
+    result.json should equal (obj(
+      "errors" -> obj(
+        "code"      -> arr("Not exists")
+      )
+    ))
+  }
+  
+  it should "return link" in new Fixtures {
+    val result = get(s"/api/v1/link/${link.code}?token=${me.token}")
+    
+    result.status should equal (OK)
+    
+    result.json should equal (obj(
+      "url"       -> link.url,
+      "code"      -> link.code,
+      "folder_id" -> link.folderId
+    ))
+  }
+  
   class Fixtures {
   
     val me   = User create User("good-secret", "good-token")
     
     val folder = Folder create Folder("existing", me.id.get)
     
-    val link = Link create Link("http://url.com", None, me.id.get, None)
+    val link = Link create Link("http://url.com", None, me.id.get, Some(folder.id.get))
   
   }
     
