@@ -10,12 +10,7 @@ import models._
 class LinkControllerSpec extends AppSpec {
 
   "POST /api/v1/link" should "be secured" in {
-    val result = post("/api/v1/link")
-    result.status should equal (UNAUTHORIZED)
-    result.json should equal (obj(
-      "errors"         -> obj(),
-      "error_messages" -> arr("Unauthorized")
-    ))
+    assertUnauthorized(post("/api/v1/link"))
   }
   
   it should "return 400 if parameters are missing" in new Fixtures {
@@ -84,12 +79,7 @@ class LinkControllerSpec extends AppSpec {
   }
   
   "GET /api/v1/link/:code" should "be secured" in {
-    val result = get("/api/v1/link/whatever")
-    result.status should equal (UNAUTHORIZED)
-    result.json should equal (obj(
-      "errors"         -> obj(),
-      "error_messages" -> arr("Unauthorized")
-    ))
+    assertUnauthorized(get("/api/v1/link/whatever"))
   }
   
   it should "return 404 if no such link exists" in new Fixtures {
@@ -118,12 +108,7 @@ class LinkControllerSpec extends AppSpec {
   }
   
   "DELETE /api/v1/link/:code" should "be secured" in {
-    val result = delete(s"/api/v1/link/whatever")
-    result.status should equal (UNAUTHORIZED)
-    result.json should equal (obj(
-      "errors"         -> obj(),
-      "error_messages" -> arr("Unauthorized")
-    ))
+    assertUnauthorized(delete(s"/api/v1/link/whatever"))
   }
   
   it should "return 404 if no such folder found" in new Fixtures {
@@ -144,12 +129,7 @@ class LinkControllerSpec extends AppSpec {
   }
   
   "GET /api/v1/link" should "be secured" in {
-    val result = get("/api/v1/link")
-    result.status should equal (UNAUTHORIZED)
-    result.json should equal (obj(
-      "errors"         -> obj(),
-      "error_messages" -> arr("Unauthorized")
-    ))
+    assertUnauthorized(get("/api/v1/link"))
   }
   
   it should "return my links" in new Fixtures {
