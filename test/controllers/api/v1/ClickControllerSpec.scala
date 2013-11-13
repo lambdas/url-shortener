@@ -41,13 +41,25 @@ class ClickControllerSpec extends AppSpec {
     result.status should equal (OK)
     
     result.json should equal (obj(
-      "url"       -> link.url,
-      "code"      -> link.code,
-      "folder_id" -> link.folderId
+      "url"         -> link.url,
+      "code"        -> link.code,
+      "folder_id"   -> link.folderId,
+      "click_count" -> Link.findOneByCode(link.code).get.clickCount
     ))
     
     val newClick = Click.findByLinkId(link.id.get).find(_.refferer == "http://my-site.com").get
     newClick.ip should be ("8.8.8.8")
+  }
+  
+  it should "increment click count" in new Fixtures {
+    val oldClickCount = Link.findOneByCode(link.code).get.clickCount
+    
+    val result = post(s"/api/v1/link/${link.code}", obj(
+        "refferer" -> "http://my-site.com",
+        "ip"       -> "8.8.8.8"
+    ))
+    
+    Link.findOneByCode(link.code).get.clickCount should be (oldClickCount + 1)
   }
   
   "GET /api/v1/link/:code/click" should "be secured" in new Fixtures {

@@ -70,6 +70,8 @@ object Click {
         'created  -> click.created
       ).executeInsert()
 
+      Link.incrementClickCount(click.linkId)
+      
       click.copy(id = Id(id))
   }
   

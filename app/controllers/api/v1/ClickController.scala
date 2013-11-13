@@ -22,7 +22,7 @@ object ClickController extends Controller with Security {
     withLink(code) { link =>
       createForm(link.id.get).bindFromRequest.withSuccess { click =>
         Click.create(click)
-        Ok(toJson(link))
+        Ok(toJson(link.copy(clickCount = link.clickCount + 1)))
       }
     }
   }
