@@ -107,6 +107,28 @@ class LinkControllerSpec extends AppSpec {
     ))
   }
   
+  "DELETE /api/v1/link/:code" should "be secured" in {
+    val result = delete(s"/api/v1/link/whatever")
+    result.status should equal (UNAUTHORIZED)
+  }
+  
+  it should "return 404 if no such folder found" in new Fixtures {
+    val result = delete(s"/api/v1/link/whatever?token=${me.token}")
+    result.status should equal (NOT_FOUND)
+    result.json should equal (obj(
+      "errors" -> obj(
+        "code" -> arr("Not exists")
+      )
+    ))
+  }
+  
+  it should "delete link" in new Fixtures {
+    val result = delete(s"/api/v1/link/${link.code}?token=${me.token}")
+    result.status should equal (OK)
+    
+    Link.findOneByCode(link.code) should be ('empty)
+  }
+  
   class Fixtures {
   
     val me   = User create User("good-secret", "good-token")

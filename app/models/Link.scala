@@ -107,6 +107,21 @@ object Link {
         ).executeUpdate()
   }
   
+  def deleteByCode(code: String, userId: Long): Unit = DB.withTransaction {
+    implicit connection =>
+      
+      SQL(
+          """
+             |DELETE FROM links
+             |  WHERE code = {code}
+             |  AND user_id = {userId}
+          """.stripMargin
+        ).on(
+          'code   -> code,
+          'userId -> userId
+        ).executeUpdate()
+  }
+  
   // TODO: Check for collision
   def randomCode: String = UUID.randomUUID().toString().take(8)
   

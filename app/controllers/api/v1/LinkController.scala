@@ -33,7 +33,11 @@ object LinkController extends Controller with Security {
   }
   
   def delete(code: String) = Authenticated { request =>
-    Ok(obj())
+    implicit val user = request.user
+    withLink(code) { link =>
+      Link.deleteByCode(code, user.id.get)
+      Ok(obj())
+    }
   }
   
   protected def createForm(implicit user: User) = Form(
