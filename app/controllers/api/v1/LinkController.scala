@@ -8,7 +8,24 @@ import play.api.libs.json.Json.obj
 import models._
 import controllers.RichForm._
 import controllers.Errors
+import controllers.Security
 
-object LinkController {
+object LinkController extends Controller with Security {
 
+  def list(offset: Long, limit: Long) = Authenticated { request =>
+    Ok
+  }
+  
+  def create = Authenticated(parse.json) { request =>
+    Ok
+  }
+  
+  def show(code: String) = Authenticated { request =>
+    Ok
+  }
+  
+  def delete(code: String) = Authenticated { request =>
+    Ok
+  }
+  
 }
