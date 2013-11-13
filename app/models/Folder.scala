@@ -6,42 +6,49 @@ import play.api.db.DB
 import play.api.Play.current
 
 case class Folder(
-    id:    Pk[Long],
-    title: String
+    id:     Pk[Long],
+    title:  String,
+    userId: Long
 )
 
 object Folder {
   
-  def apply(title: String): Folder = Folder(NotAssigned, title)
+  def apply(title: String, userId: Long): Folder =
+    Folder(NotAssigned, title, userId)
   
   val simple =
-    get[Pk[Long]]("id")    ~
-    get[String]  ("title") map {
-      case id ~ title =>
-        Folder(id, title)
+    get[Pk[Long]]("id")      ~
+    get[String]  ("title")   ~
+    get[Long]    ("user_id") map {
+      case id ~ title ~ userId =>
+        Folder(id, title, userId)
     }
   
-  def findOneById(id: Long): Option[Folder] = 
+  def findOneByIdAndUserId(id: Long, userId: Long): Option[Folder] = 
     DB.withConnection { implicit connection =>
       SQL(
         s"""
            |SELECT * FROM folders
            |  WHERE id = {id}
+           |  AND user_id = {userId}
          """.stripMargin
       ).on(
-        'id -> id
+        'id     -> id,
+        'userId -> userId
       ).as(simple.singleOpt)
     }
   
-  def findOneByTitle(title: String): Option[Folder] = 
+  def findOneByTitleAndUserId(title: String, userId: Long): Option[Folder] = 
     DB.withConnection { implicit connection =>
       SQL(
         s"""
            |SELECT * FROM folders
            |  WHERE title = {title}
+           |  AND user_id = {userId}
          """.stripMargin
       ).on(
-        'title -> title
+        'title  -> title,
+        'userId -> userId
       ).as(simple.singleOpt)
     }
   
@@ -54,12 +61,13 @@ object Folder {
 
       SQL(
         """
-           |INSERT INTO folders (id, title)
-           |  VALUES ({id}, {title})
+           |INSERT INTO folders (id, title, user_id)
+           |  VALUES ({id}, {title}, {userId})
         """.stripMargin
       ).on(
-        'id    -> id,
-        'title -> folder.title
+        'id     -> id,
+        'title  -> folder.title,
+        'userId -> folder.userId
       ).executeInsert()
 
       folder.copy(id = Id(id))

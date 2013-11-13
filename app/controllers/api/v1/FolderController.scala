@@ -12,22 +12,29 @@ import controllers.Security
 
 object FolderController extends Controller with Security {
 
-  val createForm = Form(
+  protected def createForm(implicit user: User) = Form(
     mapping(
       "title" -> nonEmptyText
-    )(Folder.apply)(f => Folder.unapply(f).map(_._2))
+    )(Folder.apply(_, user.id.get))(f => Folder.unapply(f).map(_._2))
   )
     
-  def create = Authenticated(parse.json) { request =>
-    createForm.bind(request.body).withSuccess { folder =>
+  def list(offset: Long, limit: Long) = Authenticated(parse.json) { request =>
+    Ok("")
+  }
+  
+  def create = Authenticated(parse.json) { implicit request =>
+    implicit val user = request.user
+    createForm.bindFromRequest.withSuccess { folder =>
       withUniqueFolderTitle(folder.title) {
         Ok(obj("id" -> Folder.create(folder).id.get))
       }
     }
   }
     
-  protected def withUniqueFolderTitle(title: String)(f: => Result): Result = {
-    if (Folder.findOneByTitle(title).isEmpty)
+  protected def withUniqueFolderTitle(title: String)
+                                     (f: => Result)
+                                     (implicit user: User): Result = {
+    if (Folder.findOneByTitleAndUserId(title, user.id.get).isEmpty)
       f
     else
       BadRequest(Errors.common("Folder with such name already exists"))

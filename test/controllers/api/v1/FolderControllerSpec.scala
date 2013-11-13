@@ -32,7 +32,9 @@ class FolderControllerSpec extends AppSpec {
     result.status should equal (OK)
     
     val newId = (result.json \ "id").as[Long]
-    Folder.findOneById(newId) should be (Some(Folder(Id(newId), "fun")))
+    Folder.findOneByIdAndUserId(newId, user.id.get) should be (
+        Some(Folder(Id(newId), "fun", user.id.get))
+    )
   }
   
   it should "return 400 if folder with such name already exists" in new Fixtures {
@@ -51,7 +53,7 @@ class FolderControllerSpec extends AppSpec {
   
     val user   = User create User("good-secret", "good-token")
     
-    val folder = Folder create Folder("existing")
+    val folder = Folder create Folder("existing", user.id.get)
   
   }
   

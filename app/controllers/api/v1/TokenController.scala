@@ -11,7 +11,7 @@ import controllers.Errors
 
 object TokenController extends Controller {
 
-  val authForm = Form(
+  protected val authForm = Form(
     tuple(
       "user_id" -> longNumber,
       "secret"  -> nonEmptyText
