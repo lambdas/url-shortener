@@ -65,6 +65,10 @@ class ClickControllerSpec extends AppSpec {
   "GET /api/v1/link/:code/click" should "be secured" in new Fixtures {
     val result = get(s"/api/v1/link/${link.code}/click")
     result.status should equal (UNAUTHORIZED)
+    result.json should equal (obj(
+      "errors"         -> obj(),
+      "error_messages" -> arr("Unauthorized")
+    ))
   }
   
   it should "return 404 if no such link found" in new Fixtures {

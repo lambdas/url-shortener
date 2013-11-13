@@ -12,6 +12,10 @@ class FolderControllerSpec extends AppSpec {
   "POST /api/v1/folder" should "be secured" in {
     val result = post("/api/v1/folder")
     result.status should equal (UNAUTHORIZED)
+    result.json should equal (obj(
+      "errors"         -> obj(),
+      "error_messages" -> arr("Unauthorized")
+    ))
   }
   
   it should "return 400 if parameters are missing" in new Fixtures {
@@ -52,6 +56,10 @@ class FolderControllerSpec extends AppSpec {
   "GET /api/v1/folder" should "be secured" in {
     val result = get("/api/v1/folder")
     result.status should equal (UNAUTHORIZED)
+    result.json should equal (obj(
+      "errors"         -> obj(),
+      "error_messages" -> arr("Unauthorized")
+    ))
   }
   
   it should "return my folders" in new Fixtures {
@@ -71,6 +79,10 @@ class FolderControllerSpec extends AppSpec {
   "DELETE /api/v1/folder/:id" should "be secured" in {
     val result = delete(s"/api/v1/folder/42")
     result.status should equal (UNAUTHORIZED)
+    result.json should equal (obj(
+      "errors"         -> obj(),
+      "error_messages" -> arr("Unauthorized")
+    ))
   }
   
   it should "return 404 if no such folder found" in new Fixtures {
@@ -95,6 +107,10 @@ class FolderControllerSpec extends AppSpec {
   "GET /api/v1/folder/:id" should "be secured" in {
     val result = get("/api/v1/folder/42")
     result.status should equal (UNAUTHORIZED)
+    result.json should equal (obj(
+      "errors"         -> obj(),
+      "error_messages" -> arr("Unauthorized")
+    ))
   }
   
   it should "return 404 if no such folder found" in new Fixtures {
