@@ -10,3 +10,6 @@ GET     /link       controllers.api.v1.LinkController.list(offset: Long ?= 0, li
 POST    /link       controllers.api.v1.LinkController.create
 GET     /link/:code controllers.api.v1.LinkController.show(code: String)
 DELETE  /link/:code controllers.api.v1.LinkController.delete(code: String)
+
+POST    /link/:code       controllers.api.v1.ClickController.create(code: String)
+GET     /link/:code/click controllers.api.v1.ClickController.list(code: String, offset: Long ?= 0, limit: Long ?= 20)

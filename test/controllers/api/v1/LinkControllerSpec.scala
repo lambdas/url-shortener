@@ -50,9 +50,10 @@ class LinkControllerSpec extends AppSpec {
     result.status should equal (OK)
     
     result.json should equal (obj(
-      "url"       -> "http://very-long-url.com",
-      "code"      -> "spock",
-      "folder_id" -> folder.id.get
+      "url"         -> "http://very-long-url.com",
+      "code"        -> "spock",
+      "folder_id"   -> folder.id.get,
+      "click_count" -> 0
     ))
     
     val newLink = Link.findOneByCode("spock").get
@@ -101,9 +102,10 @@ class LinkControllerSpec extends AppSpec {
     result.status should equal (OK)
     
     result.json should equal (obj(
-      "url"       -> link_1.url,
-      "code"      -> link_1.code,
-      "folder_id" -> link_1.folderId
+      "url"         -> link_1.url,
+      "code"        -> link_1.code,
+      "folder_id"   -> link_1.folderId,
+      "click_count" -> link_1.clickCount
     ))
   }
   
@@ -134,18 +136,20 @@ class LinkControllerSpec extends AppSpec {
     result.status should equal (UNAUTHORIZED)
   }
   
-  it should "return my folders" in new Fixtures {
+  it should "return my links" in new Fixtures {
     val result = get(s"/api/v1/link?token=${me.token}")
     result.status should equal (OK)
     result.json should equal (arr(
       obj(
-        "url"       -> link_1.url,
-        "code"      -> link_1.code,
-        "folder_id" -> link_1.folderId
+        "url"         -> link_1.url,
+        "code"        -> link_1.code,
+        "folder_id"   -> link_1.folderId,
+        "click_count" -> link_1.clickCount
       ), obj(
-        "url"       -> link_2.url,
-        "code"      -> link_2.code,
-        "folder_id" -> link_2.folderId
+        "url"         -> link_2.url,
+        "code"        -> link_2.code,
+        "folder_id"   -> link_2.folderId,
+        "click_count" -> link_2.clickCount
       )
     ))
   }

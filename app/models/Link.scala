@@ -9,26 +9,28 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
 case class Link(
-    id:       Pk[Long],
-    url:      String,
-    code:     String,
-    userId:   Long,
-    folderId: Option[Long]
+    id:         Pk[Long],
+    url:        String,
+    code:       String,
+    userId:     Long,
+    folderId:   Option[Long],
+    clickCount: Long
 )
 
 object Link {
   
   def apply(url: String, code: Option[String], userId: Long, folderId: Option[Long]): Link =
-    Link(NotAssigned, url, code.getOrElse(randomCode), userId, folderId)
+    Link(NotAssigned, url, code.getOrElse(randomCode), userId, folderId, 0)
   
   val simple =
-    get[Pk[Long]]    ("id")        ~
-    get[String]      ("url")       ~
-    get[String]      ("code")      ~
-    get[Long]        ("user_id")   ~
-    get[Option[Long]]("folder_id") map {
-      case id ~ url ~ code ~ userId ~ folderId =>
-        Link(id, url, code, userId, folderId)
+    get[Pk[Long]]    ("id")          ~
+    get[String]      ("url")         ~
+    get[String]      ("code")        ~
+    get[Long]        ("user_id")     ~
+    get[Option[Long]]("folder_id")   ~
+    get[Long]        ("click_count") map {
+      case id ~ url ~ code ~ userId ~ folderId ~ clickCount =>
+        Link(id, url, code, userId, folderId, clickCount)
     }
   
   def findOneByCode(code: String): Option[Link] = 
@@ -94,8 +96,8 @@ object Link {
 
       SQL(
         """
-           |INSERT INTO links (id, url, code, user_id, folder_id)
-           |  VALUES ({id}, {url}, {code}, {userId}, {folderId})
+           |INSERT INTO links (id, url, code, user_id, folder_id, click_count)
+           |  VALUES ({id}, {url}, {code}, {userId}, {folderId}, 0)
         """.stripMargin
       ).on(
         'id       -> id,
@@ -106,6 +108,20 @@ object Link {
       ).executeInsert()
 
       link.copy(id = Id(id))
+  }
+  
+  def incrementClickCount(id: Long): Unit = DB.withTransaction {
+    implicit connection =>
+
+      SQL(
+        """
+           |UPDATE links
+           |  SET click_count = click_count + 1
+           |  WHERE id = {id}
+        """.stripMargin
+      ).on(
+        'id       -> id
+      ).executeInsert()
   }
   
   def deleteWithFolderId(folderId: Long, userId: Long): Unit = DB.withTransaction {
@@ -142,9 +158,10 @@ object Link {
   def randomCode: String = UUID.randomUUID().toString().take(8)
   
   implicit val linkWrites = (
-    (__ \ "url")      .write[String] ~
-    (__ \ "code")     .write[String] ~
-    (__ \ "folder_id").writeNullable[Long]
-  )((l: Link) => (l.url, l.code, l.folderId))
+    (__ \ "url")        .write[String] ~
+    (__ \ "code")       .write[String] ~
+    (__ \ "folder_id")  .writeNullable[Long] ~
+    (__ \ "click_count").write[Long]
+  )((l: Link) => (l.url, l.code, l.folderId, l.clickCount))
   
 }

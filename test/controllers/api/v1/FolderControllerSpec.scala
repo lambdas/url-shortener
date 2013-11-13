@@ -112,13 +112,15 @@ class FolderControllerSpec extends AppSpec {
     result.status should equal (OK)
     result.json should equal (arr(
       obj(
-        "url"       -> linkFolder_1_1.url,
-        "code"      -> linkFolder_1_1.code,
-        "folder_id" -> linkFolder_1_1.folderId
+        "url"         -> linkFolder_1_1.url,
+        "code"        -> linkFolder_1_1.code,
+        "folder_id"   -> linkFolder_1_1.folderId,
+        "click_count" -> linkFolder_1_1.clickCount
       ), obj(
-        "url"       -> linkFolder_1_2.url,
-        "code"      -> linkFolder_1_2.code,
-        "folder_id" -> linkFolder_1_2.folderId
+        "url"         -> linkFolder_1_2.url,
+        "code"        -> linkFolder_1_2.code,
+        "folder_id"   -> linkFolder_1_2.folderId,
+        "click_count" -> linkFolder_1_2.clickCount
       )
     ))
   }
