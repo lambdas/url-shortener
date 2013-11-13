@@ -24,7 +24,7 @@ class ClickControllerSpec extends AppSpec {
     result.status should equal (BAD_REQUEST)
     result.json should equal (obj(
       "errors" -> obj(
-        "refferer" -> arr("This field is required"),
+        "referer" -> arr("This field is required"),
         "ip"       -> arr("This field is required")
       )
     ))
@@ -34,7 +34,7 @@ class ClickControllerSpec extends AppSpec {
   
   it should "create click if all parameters are valid" in new Fixtures {
     val result = post(s"/api/v1/link/${link.code}", obj(
-        "refferer" -> "http://my-site.com",
+        "referer" -> "http://my-site.com",
         "ip"       -> "8.8.8.8"
     ))
     
@@ -55,7 +55,7 @@ class ClickControllerSpec extends AppSpec {
     val oldClickCount = Link.findOneByCode(link.code).get.clickCount
     
     val result = post(s"/api/v1/link/${link.code}", obj(
-        "refferer" -> "http://my-site.com",
+        "referer" -> "http://my-site.com",
         "ip"       -> "8.8.8.8"
     ))
     
@@ -82,11 +82,11 @@ class ClickControllerSpec extends AppSpec {
     result.status should equal (OK)
     result.json should equal (arr(
       obj(
-        "refferer" -> click_1.refferer,
+        "referer" -> click_1.refferer,
         "ip"       -> click_1.ip,
         "created"  -> click_1.created
       ), obj(
-        "refferer" -> click_2.refferer,
+        "referer" -> click_2.refferer,
         "ip"       -> click_2.ip,
         "created"  -> click_2.created
       )

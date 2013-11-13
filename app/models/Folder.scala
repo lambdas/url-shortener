@@ -15,16 +15,16 @@ case class Folder(
 
 object Folder {
   
-  def apply(title: String, userId: Long): Folder =
-    Folder(NotAssigned, title, userId)
-  
-  val simple =
+  protected val simple =
     get[Pk[Long]]("id")      ~
     get[String]  ("title")   ~
     get[Long]    ("user_id") map {
       case id ~ title ~ userId =>
         Folder(id, title, userId)
     }
+  
+  def apply(title: String, userId: Long): Folder =
+    Folder(NotAssigned, title, userId)
   
   def findOneByIdAndUserId(id: Long, userId: Long): Option[Folder] = 
     DB.withConnection { implicit connection =>

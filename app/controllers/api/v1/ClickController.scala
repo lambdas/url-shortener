@@ -30,7 +30,7 @@ object ClickController extends Controller with Security {
   protected def createForm(linkId: Long) = Form(
     mapping(
       // TODO: Validate url
-      "refferer" -> nonEmptyText,
+      "referer" -> nonEmptyText,
       // TODO: Validate ip
       "ip"       -> nonEmptyText
     )(Click.apply(linkId, _, _))

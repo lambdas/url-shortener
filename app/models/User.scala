@@ -13,16 +13,16 @@ case class User(
 
 object User {
   
-  def apply(secret: String, token: String): User = 
-    User(NotAssigned, secret, token)
-  
-  val simple =
+  protected val simple =
     get[Pk[Long]]("id")     ~
     get[String]  ("secret") ~
     get[String]  ("token")  map {
       case id ~ secret ~ token =>
         User(id, secret, token)
     }
+    
+  def apply(secret: String, token: String): User = 
+    User(NotAssigned, secret, token)
   
   def findOneByIdAndSecret(id: Long, secret: String): Option[User] = 
     DB.withConnection { implicit connection =>

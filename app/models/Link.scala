@@ -19,10 +19,7 @@ case class Link(
 
 object Link {
   
-  def apply(url: String, code: Option[String], userId: Long, folderId: Option[Long]): Link =
-    Link(NotAssigned, url, code.getOrElse(randomCode), userId, folderId, 0)
-  
-  val simple =
+  protected val simple =
     get[Pk[Long]]    ("id")          ~
     get[String]      ("url")         ~
     get[String]      ("code")        ~
@@ -32,6 +29,9 @@ object Link {
       case id ~ url ~ code ~ userId ~ folderId ~ clickCount =>
         Link(id, url, code, userId, folderId, clickCount)
     }
+    
+  def apply(url: String, code: Option[String], userId: Long, folderId: Option[Long]): Link =
+    Link(NotAssigned, url, code.getOrElse(randomCode), userId, folderId, 0)
   
   def findOneByCode(code: String): Option[Link] = 
     DB.withConnection { implicit connection =>

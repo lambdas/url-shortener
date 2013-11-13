@@ -19,6 +19,16 @@ case class Click(
 
 object Click {
 
+  protected val simple =
+    get[Pk[Long]]("id")       ~
+    get[Long]    ("link_id")  ~
+    get[String]  ("refferer")  ~
+    get[String]  ("ip")       ~
+    get[Date]    ("created")  map {
+      case id ~ linkId ~ refferer ~ ip ~ created =>
+        Click(id, linkId, refferer, ip, created)
+    }
+    
   def apply(linkId: Long, refferer: String, ip: String): Click =
     Click(NotAssigned, linkId, refferer, ip, new Date())
   
@@ -75,20 +85,10 @@ object Click {
       click.copy(id = Id(id))
   }
   
-  val simple =
-    get[Pk[Long]]("id")       ~
-    get[Long]    ("link_id")  ~
-    get[String]  ("refferer") ~
-    get[String]  ("ip")       ~
-    get[Date]    ("created")  map {
-      case id ~ linkId ~ refferer ~ ip ~ created =>
-        Click(id, linkId, refferer, ip, created)
-    }
-  
   implicit val clickWrites = (
-    (__ \ "refferer").write[String] ~
-    (__ \ "ip")      .write[String] ~
-    (__ \ "created") .write[Date]
+    (__ \ "referer").write[String] ~
+    (__ \ "ip")     .write[String] ~
+    (__ \ "created").write[Date]
   )((c: Click) => (c.refferer, c.ip, c.created))
   
 }
