@@ -38,7 +38,7 @@ object FolderController extends Controller with Security {
     implicit val user = request.user
     withFolder(id) { folder =>
       Folder.delete(id, user.id.get)
-      Ok
+      Ok(obj())
     }
   }
   

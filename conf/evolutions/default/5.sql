@@ -4,7 +4,8 @@
 
 CREATE TABLE links (
     id SERIAL PRIMARY KEY,
-    code varchar(255) NOT NULL,
+    url varchar(255) NOT NULL,
+    code varchar(255) NOT NULL UNIQUE,
     user_id BIGINT references users(id) NOT NULL,
     folder_id BIGINT references folders(id)
 );

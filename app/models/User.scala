@@ -33,7 +33,7 @@ object User {
            |  AND secret = {secret}
          """.stripMargin
       ).on(
-        'id -> id,
+        'id     -> id,
         'secret -> secret
       ).as(simple.singleOpt)
     }
