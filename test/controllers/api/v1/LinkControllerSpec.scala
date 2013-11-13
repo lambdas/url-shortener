@@ -65,7 +65,7 @@ class LinkControllerSpec extends AppSpec {
   it should "return 400 if code already exists" in new Fixtures {
     val result = post("/api/v1/link?token=good-token", obj(
         "url"       -> "http://very-long-url.com",
-        "code"      -> link.code,
+        "code"      -> link_1.code,
         "folder_id" -> folder.id.get
     ))
     
@@ -96,14 +96,14 @@ class LinkControllerSpec extends AppSpec {
   }
   
   it should "return link" in new Fixtures {
-    val result = get(s"/api/v1/link/${link.code}?token=${me.token}")
+    val result = get(s"/api/v1/link/${link_1.code}?token=${me.token}")
     
     result.status should equal (OK)
     
     result.json should equal (obj(
-      "url"       -> link.url,
-      "code"      -> link.code,
-      "folder_id" -> link.folderId
+      "url"       -> link_1.url,
+      "code"      -> link_1.code,
+      "folder_id" -> link_1.folderId
     ))
   }
   
@@ -123,10 +123,31 @@ class LinkControllerSpec extends AppSpec {
   }
   
   it should "delete link" in new Fixtures {
-    val result = delete(s"/api/v1/link/${link.code}?token=${me.token}")
+    val result = delete(s"/api/v1/link/${link_1.code}?token=${me.token}")
     result.status should equal (OK)
     
-    Link.findOneByCode(link.code) should be ('empty)
+    Link.findOneByCode(link_1.code) should be ('empty)
+  }
+  
+  "GET /api/v1/link" should "be secured" in {
+    val result = get("/api/v1/link")
+    result.status should equal (UNAUTHORIZED)
+  }
+  
+  it should "return my folders" in new Fixtures {
+    val result = get(s"/api/v1/link?token=${me.token}")
+    result.status should equal (OK)
+    result.json should equal (arr(
+      obj(
+        "url"       -> link_1.url,
+        "code"      -> link_1.code,
+        "folder_id" -> link_1.folderId
+      ), obj(
+        "url"       -> link_2.url,
+        "code"      -> link_2.code,
+        "folder_id" -> link_2.folderId
+      )
+    ))
   }
   
   class Fixtures {
@@ -135,8 +156,9 @@ class LinkControllerSpec extends AppSpec {
     
     val folder = Folder create Folder("existing", me.id.get)
     
-    val link = Link create Link("http://url.com", None, me.id.get, Some(folder.id.get))
-  
+    val link_1 = Link create Link("http://url.com", None, me.id.get, Some(folder.id.get))
+    val link_2 = Link create Link("http://other.com", None, me.id.get, Some(folder.id.get))
+
   }
     
 }

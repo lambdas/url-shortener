@@ -13,7 +13,7 @@ import controllers.Security
 object LinkController extends Controller with Security {
 
   def list(offset: Long, limit: Long) = Authenticated { request =>
-    Ok(obj())
+    Ok(toJson(Link.list(offset, limit, request.user.id.get)))
   }
   
   def create = Authenticated(parse.json) { implicit request =>

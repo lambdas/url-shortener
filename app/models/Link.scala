@@ -69,6 +69,22 @@ object Link {
       ).as(simple *)
     }
   
+  def list(offset: Long, limit: Long, userId: Long): Seq[Link] =
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+           |SELECT * FROM links
+           |  WHERE user_id = {userId}
+           |  OFFSET {offset}
+           |  LIMIT {limit}
+         """.stripMargin
+      ).on(
+        'userId -> userId,
+        'offset -> offset,
+        'limit  -> limit
+      ).as(simple *)
+    }
+  
   def create(link: Link): Link = DB.withTransaction {
     implicit connection =>
       
