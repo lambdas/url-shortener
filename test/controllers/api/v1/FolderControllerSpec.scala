@@ -73,6 +73,16 @@ class FolderControllerSpec extends AppSpec {
     result.status should equal (UNAUTHORIZED)
   }
   
+  it should "return 404 if no such folder found" in new Fixtures {
+    val result = delete(s"/api/v1/folder/42?token=${me.token}")
+    result.status should equal (NOT_FOUND)
+    result.json should equal (obj(
+      "errors" -> obj(
+        "id" -> arr("Not exists")
+      )
+    ))
+  }
+  
   it should "delete folder" in new Fixtures {
     val result = delete(s"/api/v1/folder/${mineFolder_1.id.get}?token=${me.token}")
     result.status should equal (OK)
@@ -81,8 +91,18 @@ class FolderControllerSpec extends AppSpec {
   }
   
   "GET /api/v1/folder/:id" should "be secured" in {
-    val result = get(s"/api/v1/folder/42")
+    val result = get("/api/v1/folder/42")
     result.status should equal (UNAUTHORIZED)
+  }
+  
+  it should "return 404 if no such folder found" in new Fixtures {
+    val result = get(s"/api/v1/folder/42?token=${me.token}")
+    result.status should equal (NOT_FOUND)
+    result.json should equal (obj(
+      "errors" -> obj(
+        "id" -> arr("Not exists")
+      )
+    ))
   }
   
   // TODO:

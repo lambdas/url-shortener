@@ -28,7 +28,10 @@ object FolderController extends Controller with Security {
   }
   
   def show(id: Long) = Authenticated { request =>
-    Ok(arr())
+    implicit val user = request.user
+    withFolder(id) { folder =>
+      Ok(arr())
+    }
   }
   
   def delete(id: Long) = Authenticated { request =>
@@ -63,7 +66,11 @@ object FolderController extends Controller with Security {
                           (f: Folder => Result)
                           (implicit user: User): Result = {
     Folder.findOneByIdAndUserId(id, user.id.get).map(f)
-      .getOrElse(NotFound(Errors.common("No folder with such id")))
+      .getOrElse(NotFound(obj(
+          "errors" -> obj(
+              "id" -> arr("Not exists")
+           )
+       )))
   }
   
 }
