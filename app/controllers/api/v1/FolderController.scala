@@ -4,7 +4,7 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import play.api.libs.json.Json.{obj}
+import play.api.libs.json.Json.{obj, arr}
 import models._
 import controllers.RichForm._
 import controllers.Errors
@@ -25,6 +25,10 @@ object FolderController extends Controller with Security {
         Ok(obj("id" -> Folder.create(folder).id.get))
       }
     }
+  }
+  
+  def show(id: Long) = Authenticated { request =>
+    Ok(arr())
   }
   
   def delete(id: Long) = Authenticated { request =>

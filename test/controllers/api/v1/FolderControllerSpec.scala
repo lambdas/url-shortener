@@ -80,6 +80,19 @@ class FolderControllerSpec extends AppSpec {
     Folder.findOneByIdAndUserId(mineFolder_1.id.get, me.id.get) should be ('empty)
   }
   
+  "GET /api/v1/folder/:id" should "be secured" in {
+    val result = get(s"/api/v1/folder/42")
+    result.status should equal (UNAUTHORIZED)
+  }
+  
+  // TODO:
+  it should "return links it contain" in new Fixtures {
+    val result = get(s"/api/v1/folder/${mineFolder_1.id.get}?token=${me.token}")
+    result.status should equal (OK)
+    result.json should equal (arr(
+    ))
+  }
+  
   class Fixtures {
   
     val me   = User create User("good-secret", "good-token")
