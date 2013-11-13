@@ -11,13 +11,6 @@ import controllers.Errors
 
 object TokenController extends Controller {
 
-  protected val authForm = Form(
-    tuple(
-      "user_id" -> longNumber,
-      "secret"  -> nonEmptyText
-    )
-  )
-
   def auth = Action { request =>
     authForm.bindFromRequest(request.queryString).withSuccess {
       case (userId, secret) =>
@@ -27,6 +20,13 @@ object TokenController extends Controller {
     }
   }
 
+  protected val authForm = Form(
+    tuple(
+      "user_id" -> longNumber,
+      "secret"  -> nonEmptyText
+    )
+  )
+  
   protected def withAuthenticatedUser(userId: Long, secret: String)
                                      (f: User => Result): Result = {
     User.findOneByIdAndSecret(userId, secret).map(f).getOrElse(

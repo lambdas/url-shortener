@@ -32,8 +32,8 @@ class FolderControllerSpec extends AppSpec {
     result.status should equal (OK)
     
     val newId = (result.json \ "id").as[Long]
-    Folder.findOneByIdAndUserId(newId, user.id.get) should be (
-        Some(Folder(Id(newId), "fun", user.id.get))
+    Folder.findOneByIdAndUserId(newId, me.id.get) should be (
+        Some(Folder(Id(newId), "fun", me.id.get))
     )
   }
   
@@ -48,12 +48,35 @@ class FolderControllerSpec extends AppSpec {
       "error_messages" -> arr("Folder with such name already exists")
     ))
   }
+  
+  "GET /api/v1/folder" should "be secured" in {
+    val result = get("/api/v1/folder")
+    result.status should equal (UNAUTHORIZED)
+  }
+  
+  it should "return my folders" in new Fixtures {
+    val result = get(s"/api/v1/folder?token=${me.token}")
+    result.status should equal (OK)
+    result.json should equal (arr(
+      obj(
+        "id"    -> mineFolder_1.id.get,
+        "title" -> mineFolder_1.title
+      ), obj(
+        "id"    -> mineFolder_2.id.get,
+        "title" -> mineFolder_2.title
+      )
+    ))
+  }
 
   class Fixtures {
   
-    val user   = User create User("good-secret", "good-token")
+    val me   = User create User("good-secret", "good-token")
+    val john = User create User("good-secret", "john-token")
     
-    val folder = Folder create Folder("existing", user.id.get)
+    val mineFolder_1 = Folder create Folder("existing", me.id.get)
+    val mineFolder_2 = Folder create Folder("another existing", me.id.get)
+    
+    val johnsFolder  = Folder create Folder("johns folder", john.id.get)
   
   }
   

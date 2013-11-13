@@ -52,6 +52,22 @@ object Folder {
       ).as(simple.singleOpt)
     }
   
+  def list(offset: Long, limit: Long, userId: Long): Seq[Folder] =
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+           |SELECT * FROM folders
+           |  WHERE user_id = {userId}
+           |  OFFSET {offset}
+           |  LIMIT {limit}
+         """.stripMargin
+      ).on(
+        'userId -> userId,
+        'offset -> offset,
+        'limit  -> limit
+      ).as(simple *)
+    }
+  
   def create(folder: Folder): Folder = DB.withTransaction {
     implicit connection =>
       

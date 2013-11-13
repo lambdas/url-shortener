@@ -9,17 +9,13 @@ import models._
 import controllers.RichForm._
 import controllers.Errors
 import controllers.Security
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 object FolderController extends Controller with Security {
-
-  protected def createForm(implicit user: User) = Form(
-    mapping(
-      "title" -> nonEmptyText
-    )(Folder.apply(_, user.id.get))(f => Folder.unapply(f).map(_._2))
-  )
     
-  def list(offset: Long, limit: Long) = Authenticated(parse.json) { request =>
-    Ok("")
+  def list(offset: Long, limit: Long) = Authenticated { request =>
+    Ok(Json.toJson(Folder.list(offset, limit, request.user.id.get)))
   }
   
   def create = Authenticated(parse.json) { implicit request =>
@@ -30,7 +26,18 @@ object FolderController extends Controller with Security {
       }
     }
   }
-    
+  
+  protected implicit val folderWrites = (
+    (__ \ "id")   .write[Long] ~
+    (__ \ "title").write[String]
+  )((f: Folder) => (f.id.get, f.title))
+  
+  protected def createForm(implicit user: User) = Form(
+    mapping(
+      "title" -> nonEmptyText
+    )(Folder.apply(_, user.id.get))(f => Folder.unapply(f).map(_._2))
+  )
+  
   protected def withUniqueFolderTitle(title: String)
                                      (f: => Result)
                                      (implicit user: User): Result = {
