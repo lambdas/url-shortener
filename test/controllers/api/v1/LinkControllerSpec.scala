@@ -50,16 +50,32 @@ class LinkControllerSpec extends AppSpec {
     result.status should equal (OK)
     
     result.json should equal (obj(
-      "url" -> "http://very-long-url.com",
+      "url"       -> "http://very-long-url.com",
       "code"      -> "spock",
       "folder_id" -> folder.id.get
     ))
     
-    val link = Link.findOneByCode("spock").get
-    link.url should be ("http://very-long-url.com")
-    link.code should be ("spock")
-    link.folderId should be (folder.id.toOption)
-    link.userId should be (me.id.get)
+    val newLink = Link.findOneByCode("spock").get
+    newLink.url should be ("http://very-long-url.com")
+    newLink.code should be ("spock")
+    newLink.folderId should be (folder.id.toOption)
+    newLink.userId should be (me.id.get)
+  }
+  
+  it should "return 400 if code already exists" in new Fixtures {
+    val result = post("/api/v1/link?token=good-token", obj(
+        "url"       -> "http://very-long-url.com",
+        "code"      -> "existing",
+        "folder_id" -> folder.id.get
+    ))
+    
+    result.status should equal (BAD_REQUEST)
+    
+    result.json should equal (obj(
+      "errors" -> obj(
+        "code"      -> arr("Already exists")
+      )
+    ))
   }
   
   class Fixtures {
@@ -67,6 +83,8 @@ class LinkControllerSpec extends AppSpec {
     val me   = User create User("good-secret", "good-token")
     
     val folder = Folder create Folder("existing", me.id.get)
+    
+    val link = Link create Link("http://url.com", "existing", me.id.get, None)
   
   }
     
