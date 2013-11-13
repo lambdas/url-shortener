@@ -1,15 +1,14 @@
 package controllers.api.v1
 
-import anorm.NotAssigned
 import test.AppSpec
 import test.ControllerUtils._
 import play.api.test.Helpers._
-import play.api.libs.json.Json.{arr, obj, toJsFieldJsValueWrapper}
+import play.api.libs.json.Json.{arr, obj}
 import models._
 
 class TokenSpec extends AppSpec {
 
-  "GET /api/v1/token" should "return 403 if parameters are missing" in {
+  "GET /api/v1/token" should "return 400 if parameters are missing" in {
     val result = get("/api/v1/token")
     result.status should equal (BAD_REQUEST)
     result.json should equal (obj(
@@ -20,7 +19,7 @@ class TokenSpec extends AppSpec {
     ))
   }
   
-  it should "return 403 if user_id is not a number" in {
+  it should "return 400 if user_id is not a number" in {
     val result = get("/api/v1/token?user_id=bad-id&secret=wrong-secret")
     result.status should equal (BAD_REQUEST)
     result.json should equal (obj(
@@ -51,6 +50,6 @@ class TokenSpec extends AppSpec {
 
 class Fixtures {
   
-  val user = User create User(NotAssigned, "good-secret", "good-token")
+  val user = User create User("good-secret", "good-token")
   
 }

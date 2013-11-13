@@ -1,1 +1,4 @@
+# TODO: Better with POST
 GET     /token                      controllers.api.v1.Token.create
+
+POST    /folder                     controllers.api.v1.Folder.create

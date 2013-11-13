@@ -4,8 +4,9 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import play.api.libs.json.Json.{obj}
-import models.User
+import play.api.libs.json.Json.obj
+import models._
+import controllers.RichForm._
 
 object Token extends Controller {
 
@@ -17,7 +18,7 @@ object Token extends Controller {
   )
 
   def create = Action { request =>
-    withForm(createForm.bindFromRequest(request.queryString)) {
+    createForm.bindFromRequest(request.queryString).withSuccess {
       case (userId, secret) => 
         User.findOneByIdAndSecret(userId, secret)
           .map(u => Ok(obj("token" -> u.token)))
@@ -27,14 +28,6 @@ object Token extends Controller {
     }
   }
 
-  // TODO: Move me somewhere
-  protected def withForm[A](form: Form[A])
-                           (onSuccess: A => Result): Result =
-    form.fold(
-      errors => BadRequest(obj("errors" -> errors.errorsAsJson)),
-      onSuccess
-    )
-  
   // TODO: Move me somewhere
   def commonErrorAsJson(messages: String*) = obj(
     "errors"         -> obj(),

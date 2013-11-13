@@ -13,6 +13,9 @@ case class User(
 
 object User {
   
+  def apply(secret: String, token: String): User = 
+    User(NotAssigned, secret, token)
+  
   val simple =
     get[Pk[Long]]("id")     ~
     get[String]  ("secret") ~
