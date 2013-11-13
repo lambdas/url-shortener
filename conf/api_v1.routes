@@ -1,4 +1,4 @@
 # TODO: Better with POST
-GET     /token                      controllers.api.v1.Token.create
+GET     /token                      controllers.api.v1.TokenController.auth
 
-POST    /folder                     controllers.api.v1.Folder.create
+POST    /folder                     controllers.api.v1.FolderController.create

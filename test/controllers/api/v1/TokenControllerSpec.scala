@@ -6,7 +6,7 @@ import play.api.test.Helpers._
 import play.api.libs.json.Json.{arr, obj}
 import models._
 
-class TokenSpec extends AppSpec {
+class TokenControllerSpec extends AppSpec {
 
   "GET /api/v1/token" should "return 400 if parameters are missing" in {
     val result = get("/api/v1/token")
@@ -46,10 +46,10 @@ class TokenSpec extends AppSpec {
     ))
   }
 
-}
-
-class Fixtures {
+  class Fixtures {
   
-  val user = User create User("good-secret", "good-token")
+    val user = User create User("good-secret", "good-token")
+  
+  }
   
 }
