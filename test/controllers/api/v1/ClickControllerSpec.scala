@@ -46,9 +46,39 @@ class ClickControllerSpec extends AppSpec {
       "folder_id" -> link.folderId
     ))
     
-    val newClick = Click.findByLinkId(link.id.get)(0)
-    newClick.refferer should be ("http://my-site.com")
+    val newClick = Click.findByLinkId(link.id.get).find(_.refferer == "http://my-site.com").get
     newClick.ip should be ("8.8.8.8")
+  }
+  
+  "GET /api/v1/link/:code/click" should "be secured" in new Fixtures {
+    val result = get(s"/api/v1/link/${link.code}/click")
+    result.status should equal (UNAUTHORIZED)
+  }
+  
+  it should "return 404 if no such link found" in new Fixtures {
+    val result = get(s"/api/v1/link/whatever/click?token=${me.token}")
+    result.status should equal (NOT_FOUND)
+    result.json should equal (obj(
+      "errors" -> obj(
+        "code" -> arr("Not exists")
+      )
+    ))
+  }
+  
+  it should "return clicks" in new Fixtures {
+    val result = get(s"/api/v1/link/${link.code}/click?token=${me.token}")
+    result.status should equal (OK)
+    result.json should equal (arr(
+      obj(
+        "refferer" -> click_1.refferer,
+        "ip"       -> click_1.ip,
+        "created"  -> click_1.created
+      ), obj(
+        "refferer" -> click_2.refferer,
+        "ip"       -> click_2.ip,
+        "created"  -> click_2.created
+      )
+    ))
   }
   
   class Fixtures {
@@ -59,6 +89,9 @@ class ClickControllerSpec extends AppSpec {
     
     val link = Link create Link("http://url.com", None, me.id.get, Some(folder.id.get))
 
+    val click_1 = Click create Click(link.id.get, "http://a.com", "8.8.8.8")
+    val click_2 = Click create Click(link.id.get, "http://b.com", "9.9.9.9")
+    
   }
   
 }

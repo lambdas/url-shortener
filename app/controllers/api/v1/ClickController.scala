@@ -13,7 +13,9 @@ import controllers.Security
 object ClickController extends Controller with Security {
 
   def list(code: String, offset: Long, limit: Long) = Authenticated { request =>
-    Ok //(toJson(Clicks.list(code, offset, limit, request.user.id.get)))
+    withLink(code) { link =>
+      Ok(toJson(Click.list(link.id.get, offset, limit)))
+    }
   }
   
   def create(code: String) = Action(parse.json) { implicit request =>

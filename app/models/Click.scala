@@ -34,6 +34,22 @@ object Click {
       ).as(simple *)
     }
   
+  def list(linkId: Long, offset: Long, limit: Long): Seq[Click] =
+    DB.withConnection { implicit connection =>
+      SQL(
+        s"""
+           |SELECT * FROM clicks
+           |  WHERE link_id = {linkId}
+           |  OFFSET {offset}
+           |  LIMIT {limit}
+         """.stripMargin
+      ).on(
+        'linkId -> linkId,
+        'offset -> offset,
+        'limit  -> limit
+      ).as(simple *)
+    }
+  
   def create(click: Click): Click = DB.withTransaction {
     implicit connection =>
       
@@ -66,5 +82,11 @@ object Click {
       case id ~ linkId ~ refferer ~ ip ~ created =>
         Click(id, linkId, refferer, ip, created)
     }
-    
+  
+  implicit val clickWrites = (
+    (__ \ "refferer").write[String] ~
+    (__ \ "ip")      .write[String] ~
+    (__ \ "created") .write[Date]
+  )((c: Click) => (c.refferer, c.ip, c.created))
+  
 }
